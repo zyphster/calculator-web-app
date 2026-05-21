@@ -1,51 +1,1014 @@
-<div id="loader">
-    <h1>⚡ Mega Calc Pro</h1>
-    <div id="count">5</div>
-</div>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Calc Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-#loader{
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:black;
-    color:#00ffcc;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    z-index:999999;
-    font-family:Arial;
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --bg: #080c10;
+  --surface: rgba(15,20,28,0.9);
+  --border: rgba(255,255,255,0.06);
+  --accent: #00e5a0;
+  --accent2: #7b8cde;
+  --accent3: #f06292;
+  --num-fg: #c9d1e0;
+  --op-fg: #7b8cde;
+  --fn-fg: #80cbc4;
+  --disp-bg: rgba(0,0,0,0.45);
+  --text: #e6f0ff;
+  --dim: rgba(255,255,255,0.22);
+  --btn-num: rgba(255,255,255,0.045);
+  --btn-op: rgba(123,140,222,0.12);
+  --btn-fn: rgba(128,203,196,0.1);
+  --btn-clear: #c62828;
+  --btn-eq: linear-gradient(135deg,#00e5a0,#00b4d8);
+  --shadow: 0 3px 0 rgba(0,0,0,0.5);
+  --radius: 12px;
+}
+.theme-rose {
+  --accent: #f06292; --accent2: #ce93d8; --accent3: #80deea;
+  --op-fg: #ce93d8; --fn-fg: #80deea;
+  --btn-op: rgba(206,147,216,0.12); --btn-fn: rgba(128,222,234,0.1);
+  --btn-eq: linear-gradient(135deg,#f06292,#ce93d8);
+}
+.theme-amber {
+  --accent: #ffd54f; --accent2: #ff8a65; --accent3: #aed581;
+  --op-fg: #ff8a65; --fn-fg: #aed581;
+  --btn-op: rgba(255,138,101,0.12); --btn-fn: rgba(174,213,129,0.1);
+  --btn-eq: linear-gradient(135deg,#ffd54f,#ff8a65);
+}
+.theme-light {
+  --bg: #f0f2f5; --surface: rgba(255,255,255,0.85);
+  --border: rgba(0,0,0,0.07); --disp-bg: rgba(255,255,255,0.7);
+  --text: #1a1e2e; --dim: rgba(0,0,0,0.3);
+  --btn-num: rgba(0,0,0,0.05); --btn-op: rgba(123,140,222,0.1); --btn-fn: rgba(0,0,0,0.06);
+  --num-fg: #1a1e2e; --shadow: 0 2px 0 rgba(0,0,0,0.1);
 }
 
-#loader h1{
-    font-size:40px;
-    margin-bottom:20px;
+/* ── RESET ─────────────────────────────────────────────────── */
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);font-family:'DM Sans',sans-serif;
+  transition:background 0.4s;overflow:hidden;
 }
 
-#count{
-    font-size:60px;
-    font-weight:bold;
-    text-shadow:0 0 20px #00ffcc;
+/* ── BACKGROUND ─────────────────────────────────────────────── */
+/* Single subtle gradient mesh — GPU friendly (no animation) */
+.bg-mesh{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(0,229,160,0.04) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 80%, rgba(123,140,222,0.05) 0%, transparent 70%);
+}
+/* Stars — CSS only, no JS loops */
+.stars{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.stars::before,.stars::after{
+  content:'';position:absolute;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 30% 60%,rgba(255,255,255,0.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 55% 25%,rgba(255,255,255,0.6) 0%,transparent 100%),
+    radial-gradient(1px 1px at 70% 75%,rgba(255,255,255,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 85% 40%,rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(2px 2px at 15% 80%,rgba(255,255,255,0.2) 0%,transparent 100%),
+    radial-gradient(1px 1px at 45% 90%,rgba(255,255,255,0.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 92% 12%,rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 60% 50%,rgba(255,255,255,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 25% 40%,rgba(255,255,255,0.4) 0%,transparent 100%);
+  width:100%;height:100%;
+  animation:twinkle 5s ease-in-out infinite alternate;
+}
+.stars::after{
+  animation-delay:-2.5s;animation-duration:7s;
+  background-image:
+    radial-gradient(1px 1px at 5% 50%,rgba(255,255,255,0.4) 0%,transparent 100%),
+    radial-gradient(1.5px 1.5px at 40% 10%,rgba(255,255,255,0.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 75% 30%,rgba(255,255,255,0.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 90% 65%,rgba(255,255,255,0.4) 0%,transparent 100%),
+    radial-gradient(2px 2px at 50% 70%,rgba(255,255,255,0.2) 0%,transparent 100%);
+}
+@keyframes twinkle{0%{opacity:0.4}100%{opacity:1}}
+
+/* ── CALCULATOR ──────────────────────────────────────────────── */
+.calc-wrap{position:relative;z-index:10}
+.calculator{
+  width:360px;background:var(--surface);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-radius:24px;padding:18px;
+  border:1px solid var(--border);
+  box-shadow:0 24px 60px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:background 0.4s,border 0.4s;
+}
+
+/* Subtle glow border — only 1 gradient, no animation */
+.calculator::before{
+  content:'';position:absolute;inset:-1px;border-radius:25px;z-index:-1;
+  background:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+  opacity:0.12;transition:opacity 0.4s;
+}
+.calculator:hover::before{opacity:0.18}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.mascot{font-size:22px;cursor:pointer;transition:transform 0.2s;line-height:1}
+.mascot:hover{transform:scale(1.2) rotate(-5deg)}
+.mascot.bounce{animation:bounce 0.4s ease}
+@keyframes bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}70%{transform:translateY(-3px)}}
+
+.theme-dots{display:flex;gap:5px;align-items:center}
+.tdot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform 0.2s,border-color 0.2s}
+.tdot:hover{transform:scale(1.3)}
+.tdot.active{border-color:rgba(255,255,255,0.6)}
+
+/* ── TABS ───────────────────────────────────────────────────── */
+.tabs{display:flex;gap:2px;background:rgba(0,0,0,0.2);border-radius:10px;padding:3px;margin-bottom:12px}
+.tab{flex:1;padding:5px 4px;font-size:9.5px;font-weight:700;border:none;border-radius:7px;cursor:pointer;background:none;color:var(--dim);transition:background 0.2s,color 0.2s;font-family:'Space Mono',monospace;white-space:nowrap}
+.tab.active{background:var(--surface);color:var(--accent);box-shadow:0 1px 4px rgba(0,0,0,0.3)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* ── MODE BAR ───────────────────────────────────────────────── */
+.mode-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.mode-label{font-family:'Space Mono',monospace;font-size:8.5px;color:var(--dim);letter-spacing:0.5px}
+.mode-label span{color:var(--accent)}
+.mode-btns{display:flex;gap:2px}
+.mbtn{padding:2px 7px;border:none;border-radius:5px;font-size:8px;font-weight:700;cursor:pointer;background:rgba(255,255,255,0.03);color:var(--dim);font-family:'Space Mono',monospace;transition:background 0.2s,color 0.2s}
+.mbtn:hover{color:var(--accent)}
+.mbtn.active{background:rgba(255,255,255,0.07);color:var(--accent)}
+
+/* ── DISPLAY ────────────────────────────────────────────────── */
+.display{
+  background:var(--disp-bg);border:1px solid var(--border);
+  border-radius:14px;padding:12px 16px;margin-bottom:10px;
+  min-height:80px;display:flex;flex-direction:column;justify-content:flex-end;
+  transition:background 0.4s,border 0.4s;position:relative;overflow:hidden;
+}
+.display::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  opacity:0.3;
+}
+.expr{font-family:'Space Mono',monospace;font-size:11px;color:var(--dim);min-height:16px;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.result{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--text);line-height:1.2;word-break:break-all;transition:color 0.3s}
+.result.pop{animation:pop 0.18s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes pop{0%{transform:scale(0.94);opacity:0.5}100%{transform:scale(1);opacity:1}}
+.result.error{color:var(--accent3)}
+.cursor{display:inline-block;width:2px;height:20px;background:var(--accent);margin-left:2px;vertical-align:middle;animation:blink 1.1s step-end infinite;opacity:0.7}
+@keyframes blink{50%{opacity:0}}
+
+/* ── GRAPH ──────────────────────────────────────────────────── */
+.graph-panel{display:none;margin-bottom:8px}
+.graph-panel.open{display:block}
+.graph-panel canvas{width:100%;height:140px;border-radius:10px;background:rgba(0,0,0,0.35);border:1px solid var(--border);display:block}
+.graph-row{display:flex;gap:6px;margin-top:6px}
+.graph-row input{flex:1;padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--disp-bg);color:var(--text);font-family:'Space Mono',monospace;font-size:11px;outline:none;transition:border-color 0.2s}
+.graph-row input:focus{border-color:var(--accent)}
+.graph-row button{padding:6px 14px;border:none;border-radius:8px;cursor:pointer;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;background:var(--accent);color:#08100c;transition:opacity 0.2s}
+.graph-row button:hover{opacity:0.85}
+
+/* ── CONVERTER ──────────────────────────────────────────────── */
+.conv-panel{display:none;margin-bottom:8px;font-family:'Space Mono',monospace}
+.conv-panel.open{display:block}
+.conv-panel select,.conv-panel input{
+  padding:6px 10px;border-radius:8px;border:1px solid var(--border);
+  background:var(--disp-bg);color:var(--text);font-family:'Space Mono',monospace;font-size:11px;outline:none;width:100%;transition:border-color 0.2s
+}
+.conv-panel select option{background:var(--bg)}
+.conv-panel select:focus,.conv-panel input:focus{border-color:var(--accent)}
+.conv-type{margin-bottom:6px}
+.conv-grid{display:grid;grid-template-columns:1fr 28px 1fr;gap:5px;align-items:center;margin-top:5px}
+.swap-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:16px;transition:transform 0.25s;padding:2px;text-align:center}
+.swap-btn:hover{transform:rotate(180deg)}
+
+/* ── HISTORY ────────────────────────────────────────────────── */
+.hist-toggle{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;padding:5px 0 6px;font-family:'Space Mono',monospace;font-size:9px;color:var(--dim);transition:color 0.2s;letter-spacing:0.3px}
+.hist-toggle:hover{color:var(--accent)}
+.hist-arrow{transition:transform 0.3s;font-style:normal}
+.hist-toggle.open .hist-arrow{transform:rotate(180deg)}
+.hist-panel{max-height:0;overflow-y:auto;opacity:0;transition:max-height 0.3s ease,opacity 0.3s;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.1) transparent}
+.hist-panel.open{max-height:100px;padding-bottom:6px;opacity:1}
+.hist-item{display:flex;justify-content:space-between;padding:4px 8px;border-radius:6px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;transition:background 0.15s;border-left:2px solid transparent;margin-bottom:2px}
+.hist-item:hover{background:rgba(255,255,255,0.04);border-left-color:var(--accent)}
+.hist-item .he{color:var(--dim);font-size:9px}
+.hist-item .hr{color:var(--accent);font-weight:700}
+.hist-clear{background:none;border:none;color:var(--dim);font-family:'Space Mono',monospace;font-size:8px;cursor:pointer;padding:2px 5px;margin-left:auto;transition:color 0.2s;display:none}
+.hist-clear:hover{color:var(--accent3)}
+
+/* ── MEMORY ROW ─────────────────────────────────────────────── */
+.mem-row{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:6px}
+.mbtn-mem{padding:5px 0;font-size:9.5px;font-weight:700;border:none;border-radius:7px;cursor:pointer;background:rgba(255,255,255,0.025);color:var(--dim);font-family:'Space Mono',monospace;transition:background 0.2s,color 0.2s,transform 0.1s}
+.mbtn-mem:hover{background:rgba(255,255,255,0.05);color:var(--accent)}
+.mbtn-mem:active{transform:scale(0.92)}
+.mbtn-mem.lit{color:var(--accent)}
+
+/* ── BUTTON GRID ────────────────────────────────────────────── */
+.buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.span2{grid-column:span 2}
+
+/* Base button */
+button.calc-btn{
+  position:relative;overflow:hidden;padding:13px 0;font-size:16px;font-weight:700;
+  border:none;border-radius:var(--radius);cursor:pointer;
+  transition:filter 0.15s,transform 0.08s,box-shadow 0.15s;
+  font-family:'DM Sans',sans-serif;-webkit-tap-highlight-color:transparent;
+}
+button.calc-btn:hover{filter:brightness(1.15)}
+button.calc-btn:active{transform:scale(0.9)}
+
+.btn-num{background:var(--btn-num);color:var(--num-fg);box-shadow:var(--shadow)}
+.btn-op{background:var(--btn-op);color:var(--op-fg);box-shadow:var(--shadow);font-family:'Space Mono',monospace}
+.btn-fn{background:var(--btn-fn);color:var(--fn-fg);box-shadow:var(--shadow)}
+.btn-clear{background:var(--btn-clear);color:white;box-shadow:var(--shadow)}
+.btn-eq{background:var(--btn-eq);color:#08100c;box-shadow:var(--shadow);font-weight:800}
+.btn-op.lit{background:rgba(123,140,222,0.25);color:var(--accent2);box-shadow:0 0 12px rgba(123,140,222,0.15)}
+
+/* Ripple */
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,0.15);transform:scale(0);animation:rip 0.45s ease-out;pointer-events:none}
+@keyframes rip{to{transform:scale(4);opacity:0}}
+
+/* Shake */
+.shake{animation:shake 0.35s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+
+/* ── EXPORT OVERLAY ─────────────────────────────────────────── */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:20px;width:340px;max-width:90vw}
+.modal h3{color:var(--text);font-size:14px;margin-bottom:10px}
+.modal textarea{width:100%;height:90px;border-radius:8px;border:1px solid var(--border);background:var(--disp-bg);color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:8px;resize:none;outline:none}
+.modal-actions{display:flex;gap:6px;margin-top:8px}
+.modal-actions button{padding:7px 14px;border:none;border-radius:7px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;transition:opacity 0.2s}
+.btn-copy{background:var(--accent);color:#0a1a10}
+.btn-copy:hover{opacity:0.85}
+.btn-close-modal{background:rgba(255,255,255,0.06);color:var(--text)}
+.btn-close-modal:hover{background:rgba(255,255,255,0.1)}
+.lang-btns{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.lang-btn{padding:3px 9px;border-radius:5px;border:1px solid var(--border);background:none;color:var(--dim);font-size:9.5px;font-weight:700;cursor:pointer;font-family:'Space Mono',monospace;transition:all 0.2s}
+.lang-btn:hover{border-color:var(--accent);color:var(--accent)}
+.lang-btn.active{background:var(--accent);color:#0a1a10;border-color:var(--accent)}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media(max-width:400px){
+  .calculator{width:95vw;padding:14px;border-radius:18px}
+  button.calc-btn{padding:11px 0;font-size:14px;border-radius:10px}
+  .buttons{gap:5px}
+  .result{font-size:22px}
 }
 </style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+<div class="stars"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h3>📤 Export as Code</h3>
+    <div class="lang-btns" id="langBtns"></div>
+    <textarea id="exportTa" readonly></textarea>
+    <div class="modal-actions">
+      <button class="btn-copy" id="btnCopy">📋 Copy</button>
+      <button class="btn-close-modal" id="btnCloseModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="calc-wrap">
+<div class="calculator" id="calc">
+  <!-- Header -->
+  <div class="header">
+    <div class="mascot" id="mascot">🐱</div>
+    <div class="theme-dots" id="themeDots"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs"></div>
+
+  <!-- Mode bar -->
+  <div class="mode-bar">
+    <div class="mode-label">MODE: <span id="modeDisp">DEC</span></div>
+    <div class="mode-btns">
+      <button class="mbtn active" data-mode="dec">DEC</button>
+      <button class="mbtn" data-mode="hex">HEX</button>
+      <button class="mbtn" data-mode="bin">BIN</button>
+    </div>
+  </div>
+
+  <!-- Display -->
+  <div class="display" id="display">
+    <div class="expr" id="expr">_</div>
+    <div class="result" id="result">0<span class="cursor"></span></div>
+  </div>
+
+  <!-- Graph panel -->
+  <div class="graph-panel" id="graphPanel">
+    <canvas id="graphCanvas" height="140"></canvas>
+    <div class="graph-row">
+      <input id="graphIn" placeholder="f(x) = sin(x)" spellcheck="false">
+      <button id="graphBtn">Plot</button>
+    </div>
+  </div>
+
+  <!-- Converter panel -->
+  <div class="conv-panel" id="convPanel"></div>
+
+  <!-- History -->
+  <button class="hist-toggle" id="histToggle">
+    <i class="hist-arrow">▾</i>
+    history.log
+    <button class="hist-clear" id="histClear">✕ clear</button>
+  </button>
+  <div class="hist-panel" id="histPanel"></div>
+
+  <!-- Memory -->
+  <div class="mem-row" id="memRow">
+    <button class="mbtn-mem" data-a="mc">MC</button>
+    <button class="mbtn-mem" data-a="mr">MR</button>
+    <button class="mbtn-mem" data-a="mp">M+</button>
+    <button class="mbtn-mem" data-a="mm">M−</button>
+  </div>
+
+  <!-- Buttons -->
+  <div class="buttons" id="buttons"></div>
+</div>
+</div>
 
 <script>
-let timeLeft = 5;
+// ─── CONFIG ───────────────────────────────────────────────────
+const THEMES = [
+  {id:'default', dot:'#00e5a0', label:'Neon'},
+  {id:'rose',    dot:'#f06292', label:'Rose'},
+  {id:'amber',   dot:'#ffd54f', label:'Amber'},
+  {id:'light',   dot:'#b0bec5', label:'Light'},
+];
+const MASCOTS = ['🐱','🐰','🐼','🦊','🐸','🐙','🤖','👾','⭐','🌈'];
+const LANGS = [
+  {id:'js',   name:'JS'},
+  {id:'py',   name:'Py'},
+  {id:'cpp',  name:'C++'},
+  {id:'rs',   name:'Rust'},
+  {id:'java', name:'Java'},
+  {id:'go',   name:'Go'},
+];
+const TABS = [
+  {id:'basic', label:'Calc'},
+  {id:'sci',   label:'Sci'},
+  {id:'graph', label:'Graph'},
+  {id:'conv',  label:'Units'},
+  {id:'prog',  label:'Prog'},
+];
 
-const countElement = document.getElementById("count");
+// ─── STATE ───────────────────────────────────────────────────
+const S = {
+  cur: '0', prev: '', op: null, reset: false,
+  expr: '', mem: 0, hasMem: false,
+  history: [], histOpen: false,
+  mode: 'dec', tab: 'basic', theme: 'default',
+  mascot: 0,
+  undos: [], redos: [],
+};
 
-const timer = setInterval(() => {
-    timeLeft--;
-    countElement.innerText = timeLeft;
+// ─── AUDIO ───────────────────────────────────────────────────
+let actx = null;
+const getCtx = () => actx || (actx = new (window.AudioContext || window.webkitAudioContext)());
+function beep(freq=1200, dur=0.06, type='sine', gain=0.025) {
+  try {
+    const c = getCtx(), o = c.createOscillator(), g = c.createGain();
+    o.connect(g); g.connect(c.destination);
+    o.type = type; o.frequency.setValueAtTime(freq, c.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq * 1.3, c.currentTime + dur);
+    g.gain.setValueAtTime(gain, c.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, c.currentTime + dur);
+    o.start(c.currentTime); o.stop(c.currentTime + dur);
+  } catch(e) {}
+}
+function playEq() {
+  [880, 1100, 1320].forEach((f, i) => setTimeout(() => beep(f, 0.1, 'square', 0.015), i * 55));
+}
+function playErr() { beep(80, 0.25, 'sawtooth', 0.02); }
 
-    if(timeLeft <= 0){
-        clearInterval(timer);
+// ─── UNDO / REDO ─────────────────────────────────────────────
+function snap() {
+  S.undos.push({cur:S.cur, prev:S.prev, op:S.op, reset:S.reset, expr:S.expr});
+  if (S.undos.length > 40) S.undos.shift();
+  S.redos = [];
+}
+function undo() {
+  if (!S.undos.length) return;
+  S.redos.push({cur:S.cur, prev:S.prev, op:S.op, reset:S.reset, expr:S.expr});
+  Object.assign(S, S.undos.pop()); render(); beep();
+}
+function redo() {
+  if (!S.redos.length) return;
+  S.undos.push({cur:S.cur, prev:S.prev, op:S.op, reset:S.reset, expr:S.expr});
+  Object.assign(S, S.redos.pop()); render(); beep();
+}
 
-        document.getElementById("loader").style.display = "none";
+// ─── PERSIST — debounced so it doesn't block every keystroke ─
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem('calc2_s', JSON.stringify({
+        history: S.history.slice(-20), mem: S.mem, hasMem: S.hasMem,
+        theme: S.theme, mascot: S.mascot, mode: S.mode, tab: S.tab
+      }));
+    } catch(e) {}
+  }, 800); // wait 800ms after last action — saves battery & I/O
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem('calc2_s'));
+    if (!d) return;
+    if (d.history) S.history = d.history;
+    if (d.mem !== undefined) S.mem = d.mem;
+    if (d.hasMem !== undefined) S.hasMem = d.hasMem;
+    if (d.mascot !== undefined) S.mascot = d.mascot;
+    setTheme(d.theme || 'default', true);
+    setMode(d.mode || 'dec', true);
+    setTab(d.tab || 'basic', true);
+  } catch(e) {}
+}
+
+// ─── THEME ───────────────────────────────────────────────────
+function setTheme(id, silent) {
+  document.body.className = id !== 'default' ? 'theme-' + id : '';
+  S.theme = id;
+  document.querySelectorAll('.tdot').forEach(d => d.classList.toggle('active', d.dataset.t === id));
+  if (!silent) { beep(); save(); }
+}
+
+// ─── MASCOT ──────────────────────────────────────────────────
+function setMascot(i) {
+  S.mascot = i;
+  document.getElementById('mascot').textContent = MASCOTS[i];
+  save();
+}
+function mascotPop(em) {
+  const el = document.getElementById('mascot');
+  const prev = MASCOTS[S.mascot];
+  el.textContent = em;
+  setTimeout(() => el.textContent = prev, 1100);
+}
+function mascotBounce() {
+  const el = document.getElementById('mascot');
+  el.classList.remove('bounce'); void el.offsetWidth; el.classList.add('bounce');
+}
+
+// ─── DISPLAY ─────────────────────────────────────────────────
+function render(anim) {
+  const rEl = document.getElementById('result');
+  const isErr = S.cur === 'Error';
+  rEl.innerHTML = (isErr ? '<span style="color:var(--accent3)">Error</span>' : colorVal(S.cur))
+    + '<span class="cursor"></span>';
+  rEl.classList.toggle('error', isErr);
+  document.getElementById('expr').textContent = S.expr || '_';
+  if (anim) { rEl.classList.remove('pop'); void rEl.offsetWidth; rEl.classList.add('pop'); }
+  document.getElementById('modeDisp').textContent = S.mode.toUpperCase();
+  document.querySelectorAll('.mbtn-mem').forEach(b => b.classList.toggle('lit', S.hasMem));
+}
+function colorVal(v) {
+  if (S.mode === 'hex') return `<span style="color:#ffd54f">${v}</span>`;
+  if (S.mode === 'bin') return `<span style="color:var(--fn-fg)">${v}</span>`;
+  if (v.includes('.')) return `<span style="color:var(--accent2)">${v}</span>`;
+  if (v.length > 6) return `<span style="color:var(--accent)">${v}</span>`;
+  return `<span style="color:var(--num-fg)">${v}</span>`;
+}
+
+// ─── MODE ─────────────────────────────────────────────────────
+function toMode(val, m) {
+  const n = parseInt(val, 10); if (isNaN(n)) return '0';
+  if (m === 'hex') return '0x' + n.toString(16).toUpperCase();
+  if (m === 'bin') return '0b' + n.toString(2);
+  return n.toString(10);
+}
+function fromMode(val, m) {
+  if (m === 'dec') return val;
+  const s = val.replace(/^0x/i,'').replace(/^0b/i,'');
+  const n = parseInt(s, m === 'hex' ? 16 : 2);
+  return isNaN(n) ? '0' : n.toString(10);
+}
+function setMode(m, silent) {
+  if (m === S.mode && !silent) return;
+  S.cur = toMode(fromMode(S.cur, S.mode), m);
+  S.mode = m;
+  document.querySelectorAll('.mbtn').forEach(b => b.classList.toggle('active', b.dataset.mode === m));
+  render(true);
+  if (!silent) { beep(); save(); }
+}
+
+// ─── TAB ─────────────────────────────────────────────────────
+function setTab(id, silent) {
+  S.tab = id;
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.t === id));
+  document.getElementById('graphPanel').classList.toggle('open', id === 'graph');
+  document.getElementById('convPanel').classList.toggle('open', id === 'conv');
+  buildButtons(id);
+  if (!silent) { beep(); save(); }
+}
+
+// ─── RIPPLE EFFECT ──────────────────────────────────────────
+function ripple(btn, e) {
+  const r = btn.getBoundingClientRect();
+  const sz = Math.max(r.width, r.height);
+  const x = (e.clientX || r.left + r.width/2) - r.left - sz/2;
+  const y = (e.clientY || r.top + r.height/2) - r.top - sz/2;
+  const el = document.createElement('span');
+  el.className = 'ripple';
+  el.style.cssText = `width:${sz}px;height:${sz}px;left:${x}px;top:${y}px`;
+  btn.appendChild(el);
+  el.addEventListener('animationend', () => el.remove());
+}
+
+// ─── BUILD BUTTONS ───────────────────────────────────────────
+// Buttons are defined as data — avoids giant HTML string duplication
+const BTN_BASIC = [
+  {cls:'btn-clear',a:'clear',l:'C'},
+  {cls:'btn-fn',a:'sign',l:'±'},
+  {cls:'btn-fn',a:'pct',l:'%'},
+  {cls:'btn-op',a:'op',v:'/',l:'÷'},
+  {cls:'btn-num',v:'7',l:'7'},{cls:'btn-num',v:'8',l:'8'},{cls:'btn-num',v:'9',l:'9'},
+  {cls:'btn-op',a:'op',v:'*',l:'×'},
+  {cls:'btn-num',v:'4',l:'4'},{cls:'btn-num',v:'5',l:'5'},{cls:'btn-num',v:'6',l:'6'},
+  {cls:'btn-op',a:'op',v:'-',l:'−'},
+  {cls:'btn-num',v:'1',l:'1'},{cls:'btn-num',v:'2',l:'2'},{cls:'btn-num',v:'3',l:'3'},
+  {cls:'btn-op',a:'op',v:'+',l:'+'},
+  {cls:'btn-num',v:'0',l:'0'},
+  {cls:'btn-fn',a:'dot',l:'.'},
+  {cls:'btn-fn',a:'bsp',l:'⌫'},
+  {cls:'btn-eq',a:'eq',l:'='},
+];
+const BTN_SCI = [
+  {cls:'btn-fn',a:'fn',fn:'sin',l:'sin'},{cls:'btn-fn',a:'fn',fn:'cos',l:'cos'},
+  {cls:'btn-fn',a:'fn',fn:'tan',l:'tan'},{cls:'btn-clear',a:'clear',l:'C'},
+  {cls:'btn-fn',a:'fn',fn:'log',l:'log'},{cls:'btn-fn',a:'fn',fn:'ln',l:'ln'},
+  {cls:'btn-fn',a:'fn',fn:'sqrt',l:'√'},{cls:'btn-op',a:'op',v:'/',l:'÷'},
+  {cls:'btn-fn',a:'fn',fn:'sq',l:'x²'},{cls:'btn-num',v:'7',l:'7'},
+  {cls:'btn-num',v:'8',l:'8'},{cls:'btn-num',v:'9',l:'9'},
+  {cls:'btn-op',a:'op',v:'*',l:'×'},
+  {cls:'btn-fn',a:'const',cn:'pi',l:'π'},{cls:'btn-num',v:'4',l:'4'},
+  {cls:'btn-num',v:'5',l:'5'},{cls:'btn-num',v:'6',l:'6'},
+  {cls:'btn-op',a:'op',v:'-',l:'−'},
+  {cls:'btn-fn',a:'const',cn:'e',l:'e'},{cls:'btn-num',v:'1',l:'1'},
+  {cls:'btn-num',v:'2',l:'2'},{cls:'btn-num',v:'3',l:'3'},
+  {cls:'btn-op',a:'op',v:'+',l:'+'},
+  {cls:'btn-fn',a:'fn',fn:'fact',l:'n!'},{cls:'btn-num',v:'0',l:'0'},
+  {cls:'btn-fn',a:'dot',l:'.'},{cls:'btn-fn',a:'bsp',l:'⌫'},
+  {cls:'btn-eq span2',a:'eq',l:'='},
+];
+const BTN_PROG = [
+  {cls:'btn-clear',a:'clear',l:'C'},{cls:'btn-fn',a:'sign',l:'±'},
+  {cls:'btn-op',a:'bw',v:'&',l:'AND'},{cls:'btn-op',a:'bw',v:'|',l:'OR'},
+  {cls:'btn-op',a:'bw',v:'^',l:'XOR'},{cls:'btn-op',a:'bw',v:'<<',l:'SHL'},
+  {cls:'btn-num',v:'7',l:'7'},{cls:'btn-num',v:'8',l:'8'},
+  {cls:'btn-num',v:'9',l:'9'},{cls:'btn-op',a:'bw',v:'>>',l:'SHR'},
+  {cls:'btn-num',v:'4',l:'4'},{cls:'btn-num',v:'5',l:'5'},
+  {cls:'btn-num',v:'6',l:'6'},{cls:'btn-op',a:'bw',v:'~',l:'NOT'},
+  {cls:'btn-num',v:'1',l:'1'},{cls:'btn-num',v:'2',l:'2'},
+  {cls:'btn-num',v:'3',l:'3'},{cls:'btn-op',a:'op',v:'+',l:'+'},
+  {cls:'btn-num hex',v:'A',l:'A'},{cls:'btn-num hex',v:'B',l:'B'},
+  {cls:'btn-num hex',v:'C',l:'C'},{cls:'btn-num hex',v:'D',l:'D'},
+  {cls:'btn-num hex',v:'E',l:'E'},{cls:'btn-num hex',v:'F',l:'F'},
+];
+
+function buildButtons(tab) {
+  const con = document.getElementById('buttons');
+  const defs = tab === 'sci' ? BTN_SCI : tab === 'prog' ? BTN_PROG : BTN_BASIC;
+  // Build fragment for one reflow
+  const frag = document.createDocumentFragment();
+  defs.forEach(d => {
+    const btn = document.createElement('button');
+    btn.className = 'calc-btn ' + d.cls;
+    btn.textContent = d.l;
+    if (d.cls.includes('hex') && S.mode !== 'hex') btn.style.opacity = '0.3';
+    btn.addEventListener('click', e => {
+      ripple(btn, e); beep();
+      if (d.a === 'clear') clear_all();
+      else if (d.a === 'sign') toggle_sign();
+      else if (d.a === 'pct') append_op('%');
+      else if (d.a === 'dot') append_dot();
+      else if (d.a === 'bsp') backspace();
+      else if (d.a === 'eq') {
+        playEq();
+        const r = btn.getBoundingClientRect();
+        sparkleBurst(r.left + r.width/2, r.top + r.height/2);
+        calc();
+      }
+      else if (d.a === 'op') append_op(d.v);
+      else if (d.a === 'fn') apply_fn(d.fn);
+      else if (d.a === 'const') insert_const(d.cn);
+      else if (d.a === 'bw') bitwise(d.v);
+      else if (d.v) append_num(d.v);
+    });
+    frag.appendChild(btn);
+  });
+  con.innerHTML = ''; // clear once
+  con.appendChild(frag);
+}
+
+// ─── CALCULATOR CORE ─────────────────────────────────────────
+const OPS = {'+':'+','-':'−','*':'×','/':'÷','%':'%'};
+function append_num(n) {
+  snap();
+  if (S.reset) { S.cur = ''; S.reset = false; }
+  if (S.mode === 'hex' && /^[0-9A-Fa-f]$/.test(n)) {
+    S.cur = (S.cur === '0' ? '0x' : S.cur) + n.toUpperCase();
+  } else if (S.mode === 'bin' && (n==='0'||n==='1')) {
+    S.cur = (S.cur === '0' ? '0b' : S.cur) + n;
+  } else if (S.mode === 'dec' && /^\d$/.test(n)) {
+    S.cur = S.cur === '0' ? n : S.cur + n;
+  } else return;
+  render(true);
+}
+function append_dot() {
+  if (S.mode !== 'dec') return;
+  snap();
+  if (S.reset) { S.cur = '0'; S.reset = false; }
+  if (!S.cur.includes('.')) S.cur += '.';
+  render(true);
+}
+function append_op(op) {
+  snap();
+  if (S.op && !S.reset) calc(true);
+  document.querySelectorAll('.calc-btn.btn-op').forEach(b => b.classList.remove('lit'));
+  document.querySelectorAll('.calc-btn.btn-op').forEach(b => {
+    if (b.textContent === OPS[op] || b.textContent === op) b.classList.add('lit');
+  });
+  S.prev = S.cur; S.op = op;
+  S.expr = `${S.prev} ${OPS[op]||op} `;
+  S.reset = true; render();
+}
+function calc(chain) {
+  if (!S.op) return;
+  const a = parseFloat(fromMode(S.prev, S.mode));
+  const b = parseFloat(fromMode(S.cur, S.mode));
+  let res;
+  switch (S.op) {
+    case '+': res = a + b; break;
+    case '-': res = a - b; break;
+    case '*': res = a * b; break;
+    case '/': res = b !== 0 ? a / b : 'Error'; break;
+    case '%': res = a % b; break;
+    default: return;
+  }
+  document.querySelectorAll('.calc-btn.btn-op').forEach(b => b.classList.remove('lit'));
+  if (res === 'Error') {
+    S.cur = 'Error'; S.expr = ''; S.op = null; S.reset = true;
+    document.getElementById('display').classList.add('shake');
+    playErr(); setTimeout(() => document.getElementById('display').classList.remove('shake'), 350);
+    render(); return;
+  }
+  const rs = res.toString();
+  const mr = S.mode === 'dec' ? rs : toMode(rs, S.mode);
+  if (!chain) {
+    const ex = `${S.prev} ${OPS[S.op]||S.op} ${S.cur}`;
+    S.cur = mr; S.expr = ex + ' =';
+    addHist(ex, S.cur); S.op = null; S.reset = true;
+    render(true); mascotBounce(); mascotPop('✨'); save();
+  } else {
+    S.cur = mr; render(true);
+  }
+}
+function clear_all() {
+  snap(); S.cur='0'; S.prev=''; S.op=null; S.reset=false; S.expr='';
+  document.querySelectorAll('.calc-btn.btn-op').forEach(b => b.classList.remove('lit'));
+  render();
+}
+function toggle_sign() {
+  snap();
+  S.cur = S.cur.startsWith('-') ? S.cur.slice(1) : '-' + S.cur;
+  render(true);
+}
+function backspace() {
+  snap(); if (S.reset) return;
+  if (S.cur.length > 1) {
+    S.cur = S.cur.slice(0,-1);
+    if (S.cur === '0x' || S.cur === '0b') S.cur += '0';
+  } else S.cur = S.mode==='hex'?'0x0':S.mode==='bin'?'0b0':'0';
+  render(true);
+}
+function apply_fn(fn) {
+  const v = parseFloat(fromMode(S.cur, S.mode)) || 0;
+  let r;
+  switch(fn) {
+    case'sin': r=Math.sin(v); break; case'cos': r=Math.cos(v); break;
+    case'tan': r=Math.tan(v); break;
+    case'log': r=v>0?Math.log10(v):'Error'; break;
+    case'ln':  r=v>0?Math.log(v):'Error'; break;
+    case'sqrt':r=v>=0?Math.sqrt(v):'Error'; break;
+    case'sq':  r=v*v; break;
+    case'fact':
+      if(v<0||!Number.isInteger(v)||v>170){r='Error';break}
+      r=1; for(let i=2;i<=v;i++) r*=i; break;
+    default: return;
+  }
+  if (r==='Error') { S.cur='Error'; S.expr=''; S.op=null; S.reset=true; render(); return; }
+  S.cur = S.mode==='dec' ? r.toString() : toMode(r.toString(), S.mode);
+  S.expr = `${fn}(${v})`; S.reset=true; render(true);
+}
+function insert_const(n) {
+  const v = n==='pi' ? Math.PI : Math.E;
+  S.cur = S.mode==='dec' ? v.toString() : toMode(v.toString(), S.mode);
+  S.reset=true; render(true);
+}
+function bitwise(op) {
+  snap();
+  const a = parseInt(fromMode(S.prev||S.cur, S.mode))||0;
+  const b = parseInt(fromMode(S.cur, S.mode))||0;
+  let r;
+  switch(op) {
+    case'&': r=a&b; break; case'|': r=a|b; break; case'^': r=a^b; break;
+    case'<<':r=a<<(b||1); break; case'>>':r=a>>(b||1); break;
+    case'~': r=~a; break; default: return;
+  }
+  S.cur = S.mode==='dec' ? r.toString() : toMode(r.toString(), S.mode);
+  S.expr = `${a} ${op} ${b} =`; S.op=null; S.reset=true; render(true);
+  if(S.prev) addHist(`${a} ${op} ${b}`, S.cur);
+  S.prev='';
+}
+
+// ─── SCIENTIFIC EXPRESSION EVAL (graph) ──────────────────────
+function evalExpr(expr, xv) {
+  const s = expr
+    .replace(/π/gi,'Math.PI').replace(/\bpi\b/gi,'Math.PI')
+    .replace(/\be\b/g,'Math.E')
+    .replace(/sin\(/gi,'Math.sin(').replace(/cos\(/gi,'Math.cos(')
+    .replace(/tan\(/gi,'Math.tan(').replace(/log\(/gi,'Math.log10(')
+    .replace(/ln\(/gi,'Math.log(').replace(/sqrt\(/gi,'Math.sqrt(')
+    .replace(/abs\(/gi,'Math.abs(').replace(/\^/g,'**')
+    .replace(/\bx\b/gi, `(${xv})`);
+  try { return Function('"use strict";return(' + s + ')')(); } catch(e) { return NaN; }
+}
+
+// ─── GRAPH ───────────────────────────────────────────────────
+function plotGraph() {
+  const inp = document.getElementById('graphIn');
+  const cv  = document.getElementById('graphCanvas');
+  const expr = inp.value.trim(); if (!expr) return;
+  const ctx = cv.getContext('2d');
+  const W = cv.width = cv.clientWidth * devicePixelRatio;
+  const H = cv.height = 140 * devicePixelRatio;
+  ctx.clearRect(0,0,W,H);
+
+  // Grid (lighter approach)
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)'; ctx.lineWidth = 1;
+  for (let i=0;i<=16;i++){const x=i*W/16; ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+  for (let i=0;i<=8;i++) {const y=i*H/8;  ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+  // Axes
+  ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.moveTo(W/2,0);ctx.lineTo(W/2,H);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();
+  // Curve
+  const xMin=-10,xMax=10,yMin=-10,yMax=10,sx=W/(xMax-xMin),sy=H/(yMax-yMin);
+  const accentColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#00e5a0';
+  ctx.strokeStyle = accentColor; ctx.lineWidth=2; ctx.beginPath();
+  let started=false;
+  for(let px=0;px<=W;px++) {
+    const x=xMin+px/sx, y=evalExpr(expr,x);
+    const py=H/2-y*sy;
+    if(isFinite(y)){if(!started){ctx.moveTo(px,py);started=true}else ctx.lineTo(px,py)}
+    else started=false;
+  }
+  ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,0.2)';ctx.font=`${10*devicePixelRatio}px Space Mono,monospace`;
+  ctx.textAlign='center';ctx.fillText('f(x) = '+expr, W/2, 16*devicePixelRatio);
+  beep();
+}
+
+// ─── UNIT CONVERTER ──────────────────────────────────────────
+const UNITS = {
+  length:  {m:1,km:1000,cm:.01,mm:.001,mi:1609.34,ft:.3048,in:.0254,yd:.9144},
+  weight:  {kg:1,g:.001,lb:.453592,oz:.0283495,t:1000,mg:1e-6},
+  temp:    {C:'C',F:'F',K:'K'},
+  currency:{USD:1,EUR:1.08,GBP:1.31,JPY:.0066,INR:.012,CNY:.14},
+};
+function buildConverter() {
+  const panel = document.getElementById('convPanel');
+  panel.innerHTML = `
+    <div class="conv-type">
+      <select id="convType">
+        <option value="length">📏 Length</option>
+        <option value="weight">⚖️ Weight</option>
+        <option value="temp">🌡️ Temp</option>
+        <option value="currency">💰 Currency</option>
+      </select>
+    </div>
+    <div class="conv-grid">
+      <input id="convFrom" type="number" value="1" step="any">
+      <button class="swap-btn" id="convSwap" type="button">⇄</button>
+      <input id="convTo" type="number" readonly>
+    </div>
+    <div class="conv-grid" style="margin-top:5px">
+      <select id="convU1"></select><div></div><select id="convU2"></select>
+    </div>`;
+
+  const type=panel.querySelector('#convType'), from=panel.querySelector('#convFrom'),
+        to=panel.querySelector('#convTo'), u1=panel.querySelector('#convU1'),
+        u2=panel.querySelector('#convU2'), sw=panel.querySelector('#convSwap');
+
+  function fill(t){
+    const keys=Object.keys(UNITS[t]);
+    u1.innerHTML=u2.innerHTML=keys.map(k=>`<option>${k}</option>`).join('');
+    if(keys.length>1) u2.selectedIndex=1;
+    convert();
+  }
+  function convert(){
+    const t=type.value, uu=UNITS[t], f=u1.value, tt=u2.value, v=parseFloat(from.value)||0;
+    if(t==='temp'){
+      let c=f==='C'?v:f==='F'?(v-32)*5/9:v-273.15;
+      let r=tt==='C'?c:tt==='F'?c*9/5+32:c+273.15;
+      to.value=isFinite(r)?+r.toFixed(5):'?';
+    } else {
+      const r=v*uu[f]/uu[tt];
+      to.value=isFinite(r)?+r.toFixed(5):'?';
     }
+  }
+  type.onchange=()=>{fill(type.value);beep()};
+  from.oninput=convert; u1.onchange=convert; u2.onchange=convert;
+  sw.onclick=()=>{const t=u1.value;u1.value=u2.value;u2.value=t;convert();beep()};
+  fill('length');
+}
 
-},1000);
+// ─── HISTORY ─────────────────────────────────────────────────
+function addHist(expr, result) {
+  S.history.push({expr, result});
+  if (S.history.length > 30) S.history.shift();
+  renderHist();
+}
+function renderHist() {
+  const p=document.getElementById('histPanel');
+  const hc=document.getElementById('histClear');
+  if (!S.history.length) {
+    p.innerHTML='<div style="color:var(--dim);font-size:9px;padding:4px;font-family:Space Mono;opacity:0.4">// empty</div>';
+    if(hc) hc.style.display='none';
+    return;
+  }
+  if(hc) hc.style.display='inline';
+  const frag = document.createDocumentFragment();
+  [...S.history].reverse().forEach((it, i) => {
+    const div=document.createElement('div'); div.className='hist-item';
+    div.innerHTML=`<span class="he">${it.expr}</span><span class="hr">= ${it.result}</span>`;
+    div.onclick=()=>{ beep(); S.cur=it.result; S.reset=true; S.expr=''; S.op=null; render(true); };
+    frag.appendChild(div);
+  });
+  p.innerHTML=''; p.appendChild(frag);
+}
+
+// ─── MEMORY ──────────────────────────────────────────────────
+function handleMem(a) {
+  const v=parseFloat(fromMode(S.cur, S.mode))||0;
+  if(a==='mc'){S.mem=0;S.hasMem=false}
+  else if(a==='mr'){if(S.hasMem){S.cur=S.mem.toString();S.reset=true;render(true)}}
+  else if(a==='mp'){S.mem+=v;S.hasMem=true}
+  else if(a==='mm'){S.mem-=v;S.hasMem=true}
+  document.querySelectorAll('.mbtn-mem').forEach(b=>b.classList.toggle('lit',S.hasMem));
+  beep(); save();
+}
+
+// ─── SPARKLE ─────────────────────────────────────────────────
+function sparkleBurst(x, y) {
+  const c=document.createElement('div');
+  c.style.cssText=`position:fixed;pointer-events:none;z-index:100;left:${x}px;top:${y}px`;
+  const chars='0123456789ABCDEF';
+  if(!document.getElementById('sbStyle')){
+    const st=document.createElement('style');st.id='sbStyle';
+    st.textContent=`@keyframes sb{0%{transform:translate(0,0);opacity:1}100%{transform:translate(var(--sx),var(--sy));opacity:0}}`;
+    document.head.appendChild(st);
+  }
+  for(let i=0;i<10;i++){
+    const a=Math.PI*2/10*i, d=25+Math.random()*35;
+    const s=document.createElement('span');
+    s.textContent=chars[Math.floor(Math.random()*16)];
+    s.style.cssText=`position:absolute;font-family:Space Mono,monospace;font-size:${9+Math.random()*7}px;font-weight:700;color:var(--accent);animation:sb 0.7s ease-out forwards;animation-delay:${Math.random()*.08}s`;
+    s.style.setProperty('--sx',Math.cos(a)*d+'px');
+    s.style.setProperty('--sy',Math.sin(a)*d+'px');
+    c.appendChild(s);
+  }
+  document.body.appendChild(c);
+  setTimeout(()=>c.remove(),900);
+}
+
+// ─── EXPORT ──────────────────────────────────────────────────
+function openExport() {
+  const v=S.cur, ex=S.expr||`${S.prev||'0'} ${S.op||'?'} ${v}`;
+  const lb=document.getElementById('langBtns'); lb.innerHTML='';
+  LANGS.forEach((l,i)=>{
+    const b=document.createElement('button'); b.className='lang-btn'+(i===0?' active':'');
+    b.textContent=l.name;
+    b.onclick=()=>{lb.querySelectorAll('.lang-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');setExport(l,ex,v)};
+    lb.appendChild(b);
+  });
+  setExport(LANGS[0],ex,v);
+  document.getElementById('overlay').classList.add('open');
+}
+function setExport(l,ex,v){
+  const ta=document.getElementById('exportTa');
+  const c={'//':'//','#':'#'};
+  const cm=l.id==='py'?'#':'//';
+  let code='';
+  if(l.id==='js')code=`// ${ex}\nconst result = ${v};\nconsole.log(result);`;
+  else if(l.id==='py')code=`# ${ex}\nresult = ${v}\nprint(result)`;
+  else if(l.id==='cpp')code=`// ${ex}\n#include <iostream>\nint main() {\n    double r = ${v};\n    std::cout << r;\n    return 0;\n}`;
+  else if(l.id==='rs')code=`// ${ex}\nfn main() {\n    let r = ${v};\n    println!("{}", r);\n}`;
+  else if(l.id==='java')code=`// ${ex}\npublic class Main {\n    public static void main(String[] args) {\n        double r = ${v};\n        System.out.println(r);\n    }\n}`;
+  else if(l.id==='go')code=`// ${ex}\npackage main\nimport "fmt"\nfunc main() {\n    r := ${v}\n    fmt.Println(r)\n}`;
+  ta.value=code;
+}
+
+// ─── KEYBOARD ────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if(e.ctrlKey&&e.key==='z'){e.preventDefault();e.shiftKey?redo():undo();return}
+  const map={Enter:'eq','=':'eq',Backspace:'bsp',Escape:'clear','.':(S.mode==='dec'?'dot':''),
+    '+':'op+','-':'op-','*':'op*','/':'op/'};
+  const a=map[e.key];
+  if(a==='eq'){e.preventDefault();calc();playEq();return}
+  if(a==='bsp'){backspace();beep();return}
+  if(a==='clear'){clear_all();beep();return}
+  if(a==='dot'){append_dot();beep();return}
+  if(a&&a.startsWith('op')){append_op(a.slice(2));beep();return}
+  if(/^\d$/.test(e.key)){append_num(e.key);beep();return}
+  if(S.mode==='hex'&&/^[a-fA-F]$/.test(e.key)){append_num(e.key.toUpperCase());beep();return}
+});
+
+// ─── INIT ────────────────────────────────────────────────────
+function init() {
+  // Theme dots
+  const td=document.getElementById('themeDots');
+  THEMES.forEach(t=>{
+    const d=document.createElement('div'); d.className='tdot'+(t.id==='default'?' active':'');
+    d.dataset.t=t.id; d.style.background=t.dot; d.title=t.label;
+    d.onclick=()=>setTheme(t.id); td.appendChild(d);
+  });
+
+  // Tabs
+  const tabsEl=document.getElementById('tabs');
+  TABS.forEach(t=>{
+    const b=document.createElement('button'); b.className='tab'+(t.id==='basic'?' active':'');
+    b.dataset.t=t.id; b.textContent=t.label; b.onclick=()=>setTab(t.id); tabsEl.appendChild(b);
+  });
+
+  // Mode buttons
+  document.querySelectorAll('.mbtn').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+
+  // Memory
+  document.querySelectorAll('.mbtn-mem').forEach(b=>b.onclick=()=>handleMem(b.dataset.a));
+
+  // History toggle
+  const ht=document.getElementById('histToggle');
+  ht.onclick=function(e){
+    if(e.target.id==='histClear'){S.history=[];renderHist();save();beep();return}
+    S.histOpen=!S.histOpen;
+    document.getElementById('histPanel').classList.toggle('open',S.histOpen);
+    this.classList.toggle('open',S.histOpen); beep();
+  };
+
+  // Graph
+  document.getElementById('graphBtn').onclick=()=>{plotGraph()};
+  document.getElementById('graphIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();plotGraph()}});
+
+  // Mascot
+  document.getElementById('mascot').onclick=function(){
+    const next=(S.mascot+1)%MASCOTS.length; setMascot(next);
+    this.textContent=MASCOTS[next]; beep();
+  };
+
+  // Export
+  document.querySelector('.status-bar') // not present, but kept as ref
+  document.getElementById('btnCopy').onclick=()=>{
+    navigator.clipboard.writeText(document.getElementById('exportTa').value).then(()=>{
+      mascotPop('✅');
+      setTimeout(()=>document.getElementById('overlay').classList.remove('open'),400);
+    });
+  };
+  document.getElementById('btnCloseModal').onclick=()=>document.getElementById('overlay').classList.remove('open');
+
+  // Add export button inside display
+  const dispEl=document.getElementById('display');
+  const expBtn=document.createElement('div');
+  expBtn.style.cssText='position:absolute;top:8px;right:10px;font-size:10px;cursor:pointer;opacity:0.3;font-family:Space Mono;color:var(--dim);transition:opacity 0.2s';
+  expBtn.textContent='📤';
+  expBtn.onmouseenter=()=>expBtn.style.opacity='0.8';
+  expBtn.onmouseleave=()=>expBtn.style.opacity='0.3';
+  expBtn.onclick=()=>{openExport();beep()};
+  dispEl.style.position='relative';
+  dispEl.appendChild(expBtn);
+
+  // Converter
+  buildConverter();
+
+  // Load saved state
+  load();
+
+  // Initial render
+  buildButtons('basic');
+  render();
+  renderHist();
+}
+
+init();
 </script>
+</body>
+</html>
