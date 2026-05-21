@@ -1,40 +1,51 @@
-<div class="maintenance-banner">
-🚧 Notice: Site maintenance is scheduled on 31st May from 8:00 AM. Some features may be temporarily unavailable.
+<div id="loader">
+    <h1>⚡ Mega Calc Pro</h1>
+    <div id="count">5</div>
 </div>
 
 <style>
-.maintenance-banner{
+#loader{
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    background: #ffcc00;
-    color: black;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 12px 0;
-    z-index: 99999;
-    overflow: hidden;
-    white-space: nowrap;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    color:#00ffcc;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:999999;
+    font-family:Arial;
 }
 
-.maintenance-banner::before{
-    content: "🚧 Notice: Site maintenance is scheduled on 31st May from 8:00 AM. Some features may be temporarily unavailable. ";
-    display: inline-block;
-    padding-left: 100%;
-    animation: scrollText 15s linear infinite;
+#loader h1{
+    font-size:40px;
+    margin-bottom:20px;
 }
 
-@keyframes scrollText{
-    0%{
-        transform: translateX(0%);
-    }
-    100%{
-        transform: translateX(-100%);
-    }
-}
-
-body{
-    padding-top: 50px;
+#count{
+    font-size:60px;
+    font-weight:bold;
+    text-shadow:0 0 20px #00ffcc;
 }
 </style>
+
+<script>
+let timeLeft = 5;
+
+const countElement = document.getElementById("count");
+
+const timer = setInterval(() => {
+    timeLeft--;
+    countElement.innerText = timeLeft;
+
+    if(timeLeft <= 0){
+        clearInterval(timer);
+
+        document.getElementById("loader").style.display = "none";
+    }
+
+},1000);
+</script>
